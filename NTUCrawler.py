@@ -14,9 +14,15 @@ def getFaculty():
     soups = BeautifulSoup(data.text, "lxml")
 
     indexFac = []
+    breakInd = False
     for selects in soups.find_all("select"):
         if selects.get('name') == 'r_course_yr':
             for opt in selects.find_all('option'):
+                if opt.text.strip() == 'Minor in Art History':
+                    breakInd = False
+                if opt.text.strip() == '---Double Degree---':
+                    breakInd = True
+                if breakInd: continue
                 if not(opt.get('value') is None) and opt.get('value') != '':
                     indexFac.append({'name':opt.text.strip(), 'option_value': opt.get('value')})
 
@@ -63,6 +69,25 @@ def getCourse(param):
 
     tableNo = 0
     course = []
+
+    def getSlot(day, time):
+        if(day == '\u00a0' or time == '\u00a0'):
+            return ''
+
+        dayList = ['MON','TUE','WED','THU','FRI','SAT','SUN']
+        slotDay = dayList.index(day)
+
+        slotTime = time.split('-')
+        a = []
+        for i in slotTime:
+            hour = i[0:2]
+            min = i[2:4]
+            slot = (int(hour) - 8) * 2
+            if int(min) == 0:
+                slot -= 1
+            a.append(slot)
+        return str(slotDay)+','+str(a[0])+','+str(a[1])
+
     for table in soups.find_all('table'):
         rowNo = 0
 
@@ -96,6 +121,7 @@ def getCourse(param):
                         'group': text[2],
                         'day': text[3],
                         'time': text[4],
+                        'slot': getSlot(text[3], text[4]),
                         'venue': text[5],
                         'remark': text[6],
 
@@ -107,6 +133,7 @@ def getCourse(param):
                         'group': text[2],
                         'day': text[3],
                         'time': text[4],
+                        'slot': getSlot(text[3], text[4]),
                         'venue': text[5],
                         'remark': text[6],
 
@@ -123,14 +150,25 @@ def getCourse(param):
 
 def getAllCourses():
     temp = []
-    for i in getFaculty():
-        temp.append(getCourse(i['option_value']))
+    tempCode = []
 
+    for i in getFaculty():
+        for n in getCourse(i['option_value']):
+            if not (n['course_code'] in tempCode):
+                temp.append(n)
+                tempCode.append(n['course_code'])
     return temp
 
-def getAllNames():
+def getAllCourseNames():
     temp = []
+    tempCode = []
     for i in getFaculty():
-        temp.extend(getName(i['option_value']))
+        for n in getName(i['option_value']):
+            if not(n['course_code'] in tempCode):
+                temp.append(n)
+                tempCode.append(n['course_code'])
 
     return temp
+#print(json.dumps(cr.getFaculty(),indent=4))
+#print(json.dumps(cr.getAllCourseNames(),indent=4))
+#print(json.dumps(getAllCourses(),indent=4))
