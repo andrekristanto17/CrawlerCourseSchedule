@@ -5,10 +5,10 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = ('course_name','course_code','course_au')
 
 class IndexSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Index
-        fields = '__all__'
+        fields = ('from_course_code','index_code')

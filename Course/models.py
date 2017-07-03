@@ -10,13 +10,15 @@ class Course(models.Model):
 
 class Index(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    index_code = models.CharField(max_length=250)
+    from_course_code = models.CharField(max_length=250, null=True)
+    index_code = models.CharField(max_length=250, null=True)
 
     def __str__(self):
         return self.course.course_code + '_' + self.index_code
 
 class Schedule(models.Model):
     index = models.ForeignKey(Index, on_delete=models.CASCADE)
+    from_index_code = models.CharField(max_length=250, null=True)
     type = models.CharField(max_length=30, null=True)
     group = models.CharField(max_length=10, null=True)
     day = models.CharField(max_length=10, null=True)

@@ -12,12 +12,14 @@ def populateAllIndex():
         for n in i['schedule']:
             if not(n['index'] in indexindicator):
                 tempIndex = Index(course=tempCourse,
+                                  from_course_code=i['course_code'],
                                   index_code=n['index'])
                 tempIndex.save()
                 indexindicator.append(n['index'])
                 for o in n['info']:
                     tempSchedule = Schedule(
                         index=tempIndex,
+                        from_index_code=n['index'],
                         type=o['type'],
                         group=o['group'],
                         day=o['day'],
